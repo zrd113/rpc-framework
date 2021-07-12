@@ -17,16 +17,16 @@ import java.util.Map;
 @Slf4j
 public class RpcServerHandler extends SimpleChannelInboundHandler {
 
-    private Map<String, Object> map;
+    private Map<String, Object> serviceRegistry;
 
-    public RpcServerHandler(Map<String, Object> map) {
-        this.map = map;
+    public RpcServerHandler(Map<String, Object> serviceRegistry) {
+        this.serviceRegistry = serviceRegistry;
     }
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
-        AttributeKey<Map> key = AttributeKey.valueOf("registerService");
-        ctx.channel().attr(key).set(map);
+        AttributeKey<Map<String, Object>> key = AttributeKey.valueOf("registerService");
+        ctx.channel().attr(key).set(serviceRegistry);
 
         log.info("服务注册到 channel 中");
     }

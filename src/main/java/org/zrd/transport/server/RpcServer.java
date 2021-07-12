@@ -22,7 +22,7 @@ public class RpcServer {
 
     private static final int PORT = 8080;
 
-    private Map<String, Object> map = new ConcurrentHashMap<>();
+    private Map<String, Object> serviceRegistry = new ConcurrentHashMap<>();
 
     public void run() {
         NioEventLoopGroup bossGroup = new NioEventLoopGroup();
@@ -41,7 +41,7 @@ public class RpcServer {
                             ChannelPipeline pipeline = ch.pipeline();
                             pipeline.addLast(new ObjectEncoder());
                             pipeline.addLast(new ObjectDecoder(ClassResolvers.weakCachingConcurrentResolver(this.getClass().getClassLoader())));
-                            pipeline.addLast(new RpcServerHandler(map));
+                            pipeline.addLast(new RpcServerHandler(serviceRegistry));
                         }
                     });
 
@@ -64,7 +64,7 @@ public class RpcServer {
     }
 
     public void publishService(String key, Object value) {
-        map.put(key, value);
+        serviceRegistry.put(key, value);
 
         log.info("服务注册完毕，类型为【{}】", key);
     }
