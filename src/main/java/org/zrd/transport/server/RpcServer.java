@@ -13,14 +13,11 @@ import lombok.extern.slf4j.Slf4j;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-/**
- * @Author zrd
- * @Date 2021/5/30
- */
+
 @Slf4j
 public class RpcServer {
 
-    private static final int PORT = 8080;
+    public static final int PORT = 8080;
 
     private Map<String, Object> serviceRegistry = new ConcurrentHashMap<>();
 
