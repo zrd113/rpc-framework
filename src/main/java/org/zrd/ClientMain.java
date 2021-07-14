@@ -9,8 +9,7 @@ import org.zrd.transport.client.RpcClient;
  */
 public class ClientMain {
     public static void main(String[] args) {
-        RpcClient client = new RpcClient("127.0.0.1", 8080);
-        client.run();
+        RpcClient client = new RpcClient();
         HelloService clientProxy = client.clientProxy(HelloService.class);
         String s = clientProxy.Hello();
     }

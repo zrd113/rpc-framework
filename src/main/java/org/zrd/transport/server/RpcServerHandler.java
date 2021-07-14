@@ -2,13 +2,14 @@ package org.zrd.transport.server;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
-import io.netty.util.AttributeKey;
 import lombok.extern.slf4j.Slf4j;
 import org.zrd.dto.RpcRequest;
 import org.zrd.dto.RpcResponse;
+import org.zrd.provider.ServiceProvider;
+import org.zrd.provider.ZkServiceProviderImpl;
+import org.zrd.utils.SingletonFactory;
 
 import java.lang.reflect.Method;
-import java.util.Map;
 
 /**
  * @Author zrd
@@ -17,19 +18,9 @@ import java.util.Map;
 @Slf4j
 public class RpcServerHandler extends SimpleChannelInboundHandler {
 
-    private Map<String, Object> serviceRegistry;
+    private ServiceProvider serviceProvider = SingletonFactory.getSingleton(ZkServiceProviderImpl.class);
 
-    public RpcServerHandler(Map<String, Object> serviceRegistry) {
-        this.serviceRegistry = serviceRegistry;
-    }
-
-    @Override
-    public void channelActive(ChannelHandlerContext ctx) throws Exception {
-        AttributeKey<Map<String, Object>> key = AttributeKey.valueOf("registerService");
-        ctx.channel().attr(key).set(serviceRegistry);
-
-        log.info("服务注册到 channel 中");
-    }
+    public RpcServerHandler() {}
 
     @Override
     //继承SimpleChannelInboundHandler重写channelRead0后，会自动释放msg的内存(看一下netty内存池泄露问题)
@@ -58,9 +49,7 @@ public class RpcServerHandler extends SimpleChannelInboundHandler {
 
         log.info("服务端收到的请求参数为【{}】", request);
 
-        AttributeKey<Map> key = AttributeKey.valueOf("registerService");
-        Map map = ctx.channel().attr(key).get();
-        Object service = map.get(className);
+        Object service = serviceProvider.getService(request.getClassName());
 
         log.info("服务端调用的服务为【{}】", service.getClass().getName());
 

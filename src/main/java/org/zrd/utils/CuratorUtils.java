@@ -17,7 +17,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
 /**
- * @Author zrd
+ * @Description curator工具类
+ * @Author ZRD
  * @Date 2021/7/9
  */
 @Slf4j

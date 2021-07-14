@@ -9,17 +9,22 @@ import io.netty.handler.codec.serialization.ClassResolvers;
 import io.netty.handler.codec.serialization.ObjectDecoder;
 import io.netty.handler.codec.serialization.ObjectEncoder;
 import lombok.extern.slf4j.Slf4j;
+import org.zrd.dto.RpcService;
+import org.zrd.provider.ServiceProvider;
+import org.zrd.provider.ZkServiceProviderImpl;
+import org.zrd.utils.SingletonFactory;
 
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-
-
+/**
+ * @Description netty服务端
+ * @Author ZRD
+ * @Date 2021/5/30
+ */
 @Slf4j
 public class RpcServer {
 
     public static final int PORT = 8080;
 
-    private Map<String, Object> serviceRegistry = new ConcurrentHashMap<>();
+    private ServiceProvider serviceProvider = SingletonFactory.getSingleton(ZkServiceProviderImpl.class);
 
     public void run() {
         NioEventLoopGroup bossGroup = new NioEventLoopGroup();
@@ -38,7 +43,7 @@ public class RpcServer {
                             ChannelPipeline pipeline = ch.pipeline();
                             pipeline.addLast(new ObjectEncoder());
                             pipeline.addLast(new ObjectDecoder(ClassResolvers.weakCachingConcurrentResolver(this.getClass().getClassLoader())));
-                            pipeline.addLast(new RpcServerHandler(serviceRegistry));
+                            pipeline.addLast(new RpcServerHandler());
                         }
                     });
 
@@ -60,9 +65,7 @@ public class RpcServer {
         }
     }
 
-    public void publishService(String key, Object value) {
-        serviceRegistry.put(key, value);
-
-        log.info("服务注册完毕，类型为【{}】", key);
+    public void publishService(RpcService rpcService) {
+        serviceProvider.publishService(rpcService);
     }
 }

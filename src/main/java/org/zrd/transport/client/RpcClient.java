@@ -19,67 +19,41 @@ import java.lang.reflect.Proxy;
 import java.util.concurrent.CompletableFuture;
 
 /**
- * @Author zrd
+ * @Description netty客户端
+ * @Author ZRD
  * @Date 2021/5/30
  */
 @Slf4j
 public class RpcClient  {
-
-    private String host;
-
-    private int port;
-
+    private final Bootstrap bootstrap;
     private ChannelFuture f;
 
-    public RpcClient(String host, int port) {
-        this.host = host;
-        this.port = port;
-    }
-
-    public void run() {
+    public RpcClient() {
         NioEventLoopGroup bossGroup = new NioEventLoopGroup();
 
-        try {
-            Bootstrap bootstrap = new Bootstrap();
+        bootstrap = new Bootstrap();
 
-            bootstrap.group(bossGroup)
-                    .channel(NioSocketChannel.class)
-                    .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 5000)
-                    .handler(new ChannelInitializer<SocketChannel>() {
-                        @Override
-                        protected void initChannel(SocketChannel ch) throws Exception {
-                            ChannelPipeline pipeline = ch.pipeline();
-                            pipeline.addLast(new ObjectDecoder(ClassResolvers.weakCachingConcurrentResolver(this.getClass().getClassLoader())));
-                            pipeline.addLast(new ObjectEncoder());
-                            pipeline.addLast(new RpcClientHandler());
-                        }
-                    });
-
-            ChannelFuture f = bootstrap.connect(host, port).sync();
-            this.f = f;
-
-            log.info("客户端建立连接，服务端地址为【{}:{}】", host, port);
-
-            //添加这句会导致main线程阻塞，ClientMain就执行不下去了
-            //f.channel().closeFuture().sync();
-
-            f.channel().closeFuture().addListener(new ChannelFutureListener() {
-                @Override
-                public void operationComplete(ChannelFuture channelFuture) throws Exception {
-                    bossGroup.shutdownGracefully();
-                }
-            });
-        } catch (InterruptedException e) {
-            log.error("客户端连接失败", e);
-        }
+        bootstrap.group(bossGroup)
+                .channel(NioSocketChannel.class)
+                .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 5000)
+                .handler(new ChannelInitializer<SocketChannel>() {
+                    @Override
+                    protected void initChannel(SocketChannel ch) throws Exception {
+                        ChannelPipeline pipeline = ch.pipeline();
+                        pipeline.addLast(new ObjectDecoder(ClassResolvers.weakCachingConcurrentResolver(this.getClass().getClassLoader())));
+                        pipeline.addLast(new ObjectEncoder());
+                        pipeline.addLast(new RpcClientHandler());
+                    }
+                });
     }
+
+
 
     public <T> T clientProxy(Class<T> interfaces) {
         return (T) Proxy.newProxyInstance(interfaces.getClassLoader(), new Class[]{interfaces}, new RpcInvocationHandler());
     }
 
     class RpcInvocationHandler implements InvocationHandler {
-
         @Override
         public Object invoke(Object o, Method method, Object[] objects) throws Throwable {
             RpcRequest request = new RpcRequest();
