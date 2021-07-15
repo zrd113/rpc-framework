@@ -12,10 +12,13 @@ import io.netty.util.AttributeKey;
 import lombok.extern.slf4j.Slf4j;
 import org.zrd.dto.RpcRequest;
 import org.zrd.dto.RpcResponse;
+import org.zrd.utils.ChannelProvider;
+import org.zrd.utils.SingletonFactory;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
+import java.net.InetSocketAddress;
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -26,7 +29,7 @@ import java.util.concurrent.CompletableFuture;
 @Slf4j
 public class RpcClient  {
     private final Bootstrap bootstrap;
-    private ChannelFuture f;
+    private final ChannelProvider channelProvider;
 
     public RpcClient() {
         NioEventLoopGroup bossGroup = new NioEventLoopGroup();
@@ -45,9 +48,13 @@ public class RpcClient  {
                         pipeline.addLast(new RpcClientHandler());
                     }
                 });
+
+        channelProvider = SingletonFactory.getSingleton(ChannelProvider.class);
     }
 
+    public void doConnect(InetSocketAddress inetSocketAddress) {
 
+    }
 
     public <T> T clientProxy(Class<T> interfaces) {
         return (T) Proxy.newProxyInstance(interfaces.getClassLoader(), new Class[]{interfaces}, new RpcInvocationHandler());
@@ -66,8 +73,8 @@ public class RpcClient  {
 
             CompletableFuture<RpcResponse> completableFuture = new CompletableFuture<>();
             AttributeKey<Object> key = AttributeKey.valueOf("response");
-            f.channel().attr(key).set(completableFuture);
-            f.channel().writeAndFlush(request);
+            //f.channel().attr(key).set(completableFuture);
+            //f.channel().writeAndFlush(request);
 
             log.info("客户端请求参数发送完毕");
             log.info("等待返回结果......");
