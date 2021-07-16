@@ -11,6 +11,16 @@ public class RpcRequest implements Serializable {
 
     private static final long serialVersionUID = 1905122041950251207L;
 
+    private String requestId;
+
+    public String getRequestId() {
+        return requestId;
+    }
+
+    public void setRequestId(String requestId) {
+        this.requestId = requestId;
+    }
+
     private String className;
 
     private String methodName;
@@ -54,11 +64,11 @@ public class RpcRequest implements Serializable {
     @Override
     public String toString() {
         return "RpcRequest{" +
-                "className='" + className + '\'' +
+                "requestId='" + requestId + '\'' +
+                ", className='" + className + '\'' +
                 ", methodName='" + methodName + '\'' +
                 ", parameterTypes=" + Arrays.toString(parameterTypes) +
                 ", parameter=" + Arrays.toString(parameter) +
                 '}';
     }
-
 }
