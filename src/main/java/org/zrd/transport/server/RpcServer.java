@@ -51,14 +51,9 @@ public class RpcServer {
 
             log.info("服务端开始运行，端口为【{}】", PORT);
 
-            //AttributeKey<Map> key = AttributeKey.valueOf("registerService");
-            //f.channel().attr(key).set(map);
-            f.channel().closeFuture().addListener(new ChannelFutureListener() {
-                @Override
-                public void operationComplete(ChannelFuture channelFuture) throws Exception {
-                    bossGroup.shutdownGracefully();
-                    workerGroup.shutdownGracefully();
-                }
+            f.channel().closeFuture().addListener(future -> {
+                bossGroup.shutdownGracefully();
+                workerGroup.shutdownGracefully();
             });
         } catch (InterruptedException e) {
             log.error("服务端运行失败", e);

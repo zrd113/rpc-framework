@@ -1,6 +1,7 @@
 package org.zrd;
 
 import org.zrd.dto.RpcService;
+import org.zrd.service.HelloService;
 import org.zrd.service.HelloServiceImpl;
 import org.zrd.transport.server.RpcServer;
 
@@ -13,6 +14,8 @@ public class ServerMain {
         RpcServer server = new RpcServer();
         HelloServiceImpl helloService = new HelloServiceImpl();
         RpcService rpcService = new RpcService();
+        rpcService.setService(helloService);
+        rpcService.setRpcServiceName(HelloService.class.getName());
         server.publishService(rpcService);
         server.run();
     }

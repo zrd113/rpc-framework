@@ -2,11 +2,10 @@ package org.zrd.transport.client;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
-import io.netty.util.AttributeKey;
 import lombok.extern.slf4j.Slf4j;
 import org.zrd.dto.RpcResponse;
-
-import java.util.concurrent.CompletableFuture;
+import org.zrd.utils.SingletonFactory;
+import org.zrd.utils.UnProcessedReqMap;
 
 /**
  * @Author zrd
@@ -14,6 +13,11 @@ import java.util.concurrent.CompletableFuture;
  */
 @Slf4j
 public class RpcClientHandler extends SimpleChannelInboundHandler {
+    private final UnProcessedReqMap unProcessedReqMap;
+
+    public RpcClientHandler() {
+        unProcessedReqMap = SingletonFactory.getSingleton(UnProcessedReqMap.class);
+    }
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, Object msg) throws Exception {
@@ -21,10 +25,7 @@ public class RpcClientHandler extends SimpleChannelInboundHandler {
 
         log.info("将返回结果设置到 completableFuture 中");
 
-        CompletableFuture<RpcResponse> completableFuture = null;
-        AttributeKey<Object> key = AttributeKey.valueOf("response");
-        completableFuture = (CompletableFuture<RpcResponse>) ctx.channel().attr(key).get();
-        completableFuture.complete(response);
+        unProcessedReqMap.complete(response);
     }
 
     @Override

@@ -48,10 +48,10 @@ public class CuratorUtils {
         final ExponentialBackoffRetry retry = new ExponentialBackoffRetry(BASE_SLEEP_TIME, MAX_RETRIES);
 
         zkClient = CuratorFrameworkFactory.builder()
-                .retryPolicy(retry)
                 .connectString(DEFAULT_ZK_ADDRESS)
+                .retryPolicy(retry)
                 .build();
-
+        zkClient.start();
         try {
             if (!zkClient.blockUntilConnected(30, TimeUnit.SECONDS)) {
                 throw new RuntimeException("连接ZK超时");

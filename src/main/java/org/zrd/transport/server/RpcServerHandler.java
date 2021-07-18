@@ -55,7 +55,7 @@ public class RpcServerHandler extends SimpleChannelInboundHandler {
 
         Method method = service.getClass().getMethod(methodName, argsTypes);
         Object o = method.invoke(service, args);
-        RpcResponse success = RpcResponse.success(o, "执行成功");
+        RpcResponse success = RpcResponse.success(o, request.getRequestId(), "执行成功");
 
         log.info("服务调用成功");
         return success;

@@ -14,6 +14,8 @@ public class RpcResponse<T> implements Serializable {
 
     private String message;
 
+    private String requestId;
+
     public String getMessage() {
         return message;
     }
@@ -30,10 +32,11 @@ public class RpcResponse<T> implements Serializable {
         this.data = data;
     }
 
-    public static <T> RpcResponse success(T data, String message) {
+    public static <T> RpcResponse success(T data, String requestId, String message) {
         RpcResponse<T> response = new RpcResponse<>();
         response.setData(data);
         response.setMessage(message);
+        response.setRequestId(requestId);
         return response;
     }
 
@@ -44,11 +47,20 @@ public class RpcResponse<T> implements Serializable {
         return response;
     }
 
+    public String getRequestId() {
+        return requestId;
+    }
+
+    public void setRequestId(String requestId) {
+        this.requestId = requestId;
+    }
+
     @Override
     public String toString() {
         return "RpcResponse{" +
                 "data=" + data +
                 ", message='" + message + '\'' +
+                ", requestId='" + requestId + '\'' +
                 '}';
     }
 }

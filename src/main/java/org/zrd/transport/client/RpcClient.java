@@ -8,7 +8,6 @@ import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.codec.serialization.ClassResolvers;
 import io.netty.handler.codec.serialization.ObjectDecoder;
 import io.netty.handler.codec.serialization.ObjectEncoder;
-import io.netty.util.AttributeKey;
 import lombok.extern.slf4j.Slf4j;
 import org.zrd.dto.RpcRequest;
 import org.zrd.dto.RpcResponse;
@@ -18,9 +17,6 @@ import org.zrd.utils.ChannelProvider;
 import org.zrd.utils.SingletonFactory;
 import org.zrd.utils.UnProcessedReqMap;
 
-import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.Method;
-import java.lang.reflect.Proxy;
 import java.net.InetSocketAddress;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
@@ -104,36 +100,5 @@ public class RpcClient  {
             channelProvider.set(inetSocketAddress, channel);
         }
         return channel;
-    }
-
-    public <T> T clientProxy(Class<T> interfaces) {
-        return (T) Proxy.newProxyInstance(interfaces.getClassLoader(), new Class[]{interfaces}, new RpcInvocationHandler());
-    }
-
-    class RpcInvocationHandler implements InvocationHandler {
-        @Override
-        public Object invoke(Object o, Method method, Object[] objects) throws Throwable {
-            RpcRequest request = new RpcRequest();
-            request.setClassName(method.getDeclaringClass().getName());
-            request.setMethodName(method.getName());
-            request.setParameterTypes(method.getParameterTypes());
-            request.setParameter(objects);
-
-            log.info("客户端请求参数为【{}】", request);
-
-            CompletableFuture<RpcResponse> completableFuture = new CompletableFuture<>();
-            AttributeKey<Object> key = AttributeKey.valueOf("response");
-            //f.channel().attr(key).set(completableFuture);
-            //f.channel().writeAndFlush(request);
-
-            log.info("客户端请求参数发送完毕");
-            log.info("等待返回结果......");
-
-            Object data = completableFuture.get().getData();
-
-            log.info("返回结果为{}", data);
-
-            return data;
-        }
     }
 }
