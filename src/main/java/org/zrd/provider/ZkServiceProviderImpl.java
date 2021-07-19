@@ -49,7 +49,6 @@ public class ZkServiceProviderImpl implements ServiceProvider {
             String host = InetAddress.getLocalHost().getHostAddress();
             this.addService(rpcService);
             serviceRegistry.registerService(rpcService.getRpcServiceName(), new InetSocketAddress(host, RpcServer.PORT));
-            log.info("服务注册成功[{}]", rpcService.getRpcServiceName());
         } catch (UnknownHostException e) {
             log.error("获取本地地址发生错误");
         }

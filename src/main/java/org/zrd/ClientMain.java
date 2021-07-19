@@ -18,5 +18,6 @@ public class ClientMain {
         rpcRequest.setClassName(HelloService.class.getName());
         rpcRequest.setRequestId("1");
         final Object o = client.sendRequest(rpcRequest);
+        System.out.println(o);
     }
 }
