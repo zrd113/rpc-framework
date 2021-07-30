@@ -1,8 +1,8 @@
 package org.zrd;
 
 import org.zrd.dto.RpcService;
-import org.zrd.service.HelloService;
-import org.zrd.service.HelloServiceImpl;
+import org.zrd.service.Test;
+import org.zrd.service.TestImpl;
 import org.zrd.transport.server.RpcServer;
 
 /**
@@ -12,10 +12,10 @@ import org.zrd.transport.server.RpcServer;
 public class ServerMain {
     public static void main(String[] args) {
         RpcServer server = new RpcServer();
-        HelloServiceImpl helloService = new HelloServiceImpl();
+        Test test = new TestImpl();
         RpcService rpcService = new RpcService();
-        rpcService.setService(helloService);
-        rpcService.setRpcServiceName(HelloService.class.getName());
+        rpcService.setService(test);
+        rpcService.setRpcServiceName(Test.class.getName());
         server.publishService(rpcService);
         server.run();
     }
