@@ -1,7 +1,7 @@
 package org.zrd;
 
 import org.zrd.proxy.RpcProxy;
-import org.zrd.service.Test;
+import org.zrd.service.HelloService;
 import org.zrd.transport.client.RpcClient;
 
 import java.util.concurrent.ExecutionException;
@@ -13,8 +13,8 @@ import java.util.concurrent.ExecutionException;
 public class ClientMain {
     public static void main(String[] args) throws ExecutionException, InterruptedException {
         RpcClient client = new RpcClient();
-        Test proxy = new RpcProxy(client).getProxy(Test.class);
-        String hello = proxy.test("hhhhh");
+        HelloService proxy = new RpcProxy(client).getProxy(HelloService.class);
+        String hello = proxy.Hello();
         System.out.println(hello);
     }
 }

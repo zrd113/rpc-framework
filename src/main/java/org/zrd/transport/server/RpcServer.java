@@ -9,6 +9,7 @@ import io.netty.handler.codec.serialization.ClassResolvers;
 import io.netty.handler.codec.serialization.ObjectDecoder;
 import io.netty.handler.codec.serialization.ObjectEncoder;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Component;
 import org.zrd.dto.RpcService;
 import org.zrd.provider.ServiceProvider;
 import org.zrd.provider.ZkServiceProviderImpl;
@@ -20,6 +21,7 @@ import org.zrd.utils.SingletonFactory;
  * @Date 2021/5/30
  */
 @Slf4j
+@Component
 public class RpcServer {
 
     public static final int PORT = 8080;
