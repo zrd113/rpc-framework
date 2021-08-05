@@ -5,8 +5,8 @@ import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.stereotype.Component;
 import org.zrd.annotation.RpcReference;
-import org.zrd.annotation.RpcServiceAnna;
-import org.zrd.dto.RpcService;
+import org.zrd.annotation.RpcService;
+import org.zrd.dto.RpcServiceConfig;
 import org.zrd.provider.ServiceProvider;
 import org.zrd.provider.ZkServiceProviderImpl;
 import org.zrd.proxy.RpcProxy;
@@ -34,8 +34,8 @@ public class SpringBeanPostProcessor implements BeanPostProcessor {
 
     @Override
     public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
-        if (bean.getClass().isAnnotationPresent(RpcServiceAnna.class)) {
-            RpcService rpcService = new RpcService();
+        if (bean.getClass().isAnnotationPresent(RpcService.class)) {
+            RpcServiceConfig rpcService = new RpcServiceConfig();
             rpcService.setService(bean);
             rpcService.setRpcServiceName(bean.getClass().getInterfaces()[0].getCanonicalName());
             serviceProvider.publishService(rpcService);

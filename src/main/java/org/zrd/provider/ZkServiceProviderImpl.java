@@ -1,7 +1,7 @@
 package org.zrd.provider;
 
 import lombok.extern.slf4j.Slf4j;
-import org.zrd.dto.RpcService;
+import org.zrd.dto.RpcServiceConfig;
 import org.zrd.registry.ServiceRegistry;
 import org.zrd.registry.ZkServiceRegistry;
 import org.zrd.transport.server.RpcServer;
@@ -28,7 +28,7 @@ public class ZkServiceProviderImpl implements ServiceProvider {
     }
 
     @Override
-    public void addService(RpcService rpcService) {
+    public void addService(RpcServiceConfig rpcService) {
         String rpcServiceName = rpcService.getRpcServiceName();
         serviceMap.put(rpcServiceName, rpcService.getService());
         log.info("添加服务：{}", rpcServiceName);
@@ -44,7 +44,7 @@ public class ZkServiceProviderImpl implements ServiceProvider {
     }
 
     @Override
-    public void publishService(RpcService rpcService) {
+    public void publishService(RpcServiceConfig rpcService) {
         try {
             String host = InetAddress.getLocalHost().getHostAddress();
             this.addService(rpcService);

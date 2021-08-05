@@ -1,6 +1,6 @@
 package org.zrd.provider;
 
-import org.zrd.dto.RpcService;
+import org.zrd.dto.RpcServiceConfig;
 
 /**
  * @Description 服务提供接口
@@ -14,7 +14,7 @@ public interface ServiceProvider {
      * @Return: void
      * @Date: 2021/7/13
      */
-    void addService(RpcService rpcService);
+    void addService(RpcServiceConfig rpcService);
 
     /**
      * @Param: rpcServiceName 服务名字
@@ -28,5 +28,5 @@ public interface ServiceProvider {
      * @Return: void
      * @Date: 2021/7/13
      */
-    void publishService(RpcService rpcService);
+    void publishService(RpcServiceConfig rpcService);
 }

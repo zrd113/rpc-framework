@@ -28,12 +28,13 @@ public class RpcProxy implements InvocationHandler {
 
     @Override
     public Object invoke(Object o, Method method, Object[] objects) throws Throwable {
-        RpcRequest rpcRequest = new RpcRequest();
-        rpcRequest.setMethodName(method.getName());
-        rpcRequest.setClassName(method.getDeclaringClass().getName());
-        rpcRequest.setParameter(objects);
-        rpcRequest.setParameterTypes(method.getParameterTypes());
-        rpcRequest.setRequestId(UUID.randomUUID().toString());
+        RpcRequest rpcRequest = RpcRequest.builder()
+                .methodName(method.getName())
+                .className(method.getDeclaringClass().getName())
+                .parameter(objects)
+                .parameterTypes(method.getParameterTypes())
+                .requestId(UUID.randomUUID().toString())
+                .build();
 
         RpcResponse<Object> response = (RpcResponse<Object>) rpcClient.sendRequest(rpcRequest);
         return  response.getData();
