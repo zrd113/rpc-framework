@@ -8,14 +8,13 @@ import io.netty.channel.ChannelPipeline;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
-import io.netty.handler.codec.serialization.ClassResolvers;
-import io.netty.handler.codec.serialization.ObjectDecoder;
-import io.netty.handler.codec.serialization.ObjectEncoder;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.zrd.dto.RpcServiceConfig;
 import org.zrd.provider.ServiceProvider;
 import org.zrd.provider.ZkServiceProviderImpl;
+import org.zrd.transport.codec.RpcMessageDecoder;
+import org.zrd.transport.codec.RpcMessageEncoder;
 import org.zrd.utils.SingletonFactory;
 
 /**
@@ -46,8 +45,8 @@ public class RpcServer {
                         @Override
                         protected void initChannel(SocketChannel ch) throws Exception {
                             ChannelPipeline pipeline = ch.pipeline();
-                            pipeline.addLast(new ObjectEncoder());
-                            pipeline.addLast(new ObjectDecoder(ClassResolvers.weakCachingConcurrentResolver(this.getClass().getClassLoader())));
+                            pipeline.addLast(new RpcMessageDecoder());
+                            pipeline.addLast(new RpcMessageEncoder());
                             pipeline.addLast(new RpcServerHandler());
                         }
                     });

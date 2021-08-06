@@ -5,14 +5,15 @@ import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
-import io.netty.handler.codec.serialization.ClassResolvers;
-import io.netty.handler.codec.serialization.ObjectDecoder;
-import io.netty.handler.codec.serialization.ObjectEncoder;
 import lombok.extern.slf4j.Slf4j;
+import org.zrd.dto.RpcMessage;
 import org.zrd.dto.RpcRequest;
 import org.zrd.dto.RpcResponse;
 import org.zrd.registry.ServiceDiscovery;
 import org.zrd.registry.ZkServiceDiscovery;
+import org.zrd.transport.codec.RpcMessageDecoder;
+import org.zrd.transport.codec.RpcMessageEncoder;
+import org.zrd.transport.constants.RpcConstants;
 import org.zrd.utils.ChannelProvider;
 import org.zrd.utils.SingletonFactory;
 import org.zrd.utils.UnProcessedReqMap;
@@ -45,8 +46,8 @@ public class RpcClient  {
                     @Override
                     protected void initChannel(SocketChannel ch) throws Exception {
                         ChannelPipeline pipeline = ch.pipeline();
-                        pipeline.addLast(new ObjectDecoder(ClassResolvers.weakCachingConcurrentResolver(this.getClass().getClassLoader())));
-                        pipeline.addLast(new ObjectEncoder());
+                        pipeline.addLast(new RpcMessageDecoder());
+                        pipeline.addLast(new RpcMessageEncoder());
                         pipeline.addLast(new RpcClientHandler());
                     }
                 });
@@ -81,9 +82,15 @@ public class RpcClient  {
         Channel channel = getChannel(inetSocketAddress);
         if (channel.isActive()) {
             unProcessedReqMap.put(request.getRequestId(), resultFuture);
-            channel.writeAndFlush(request).addListener((ChannelFutureListener)future -> {
+            RpcMessage rpcMessage = RpcMessage.builder()
+                    .data(request)
+                    .codec((byte)1)
+                    .compress((byte)1)
+                    .messageType(RpcConstants.REQUEST_TYPE)
+                    .build();
+            channel.writeAndFlush(rpcMessage).addListener((ChannelFutureListener)future -> {
                 if (future.isSuccess()) {
-                    log.info("客户端成功发送消息[{}]", request);
+                    log.info("客户端成功发送消息[{}]", rpcMessage);
                 } else {
                     future.channel().close();
                     log.error("客户端发送失败");

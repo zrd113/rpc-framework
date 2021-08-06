@@ -21,7 +21,5 @@ public class RpcMessage {
 
     private byte compress;
 
-    private int requestId;
-
     private Object data;
 }
