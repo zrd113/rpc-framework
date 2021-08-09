@@ -4,6 +4,8 @@ import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
 import lombok.extern.slf4j.Slf4j;
+import org.zrd.compress.Compress;
+import org.zrd.compress.gzip.GzipCompress;
 import org.zrd.dto.RpcMessage;
 import org.zrd.dto.RpcRequest;
 import org.zrd.dto.RpcResponse;
@@ -73,6 +75,9 @@ public class RpcMessageDecoder extends LengthFieldBasedFrameDecoder {
         if (bodyLength > 0) {
             byte[] bytes = new byte[bodyLength];
             in.readBytes(bytes);
+            Compress compress = new GzipCompress();
+            bytes = compress.decompress(bytes);
+            log.info("数据解压缩完毕");
             Serializer serializer = new KryoSerializer();
             if (messageType == RpcConstants.REQUEST_TYPE) {
                 RpcRequest rpcRequest = serializer.deserialize(bytes, RpcRequest.class);
@@ -81,6 +86,7 @@ public class RpcMessageDecoder extends LengthFieldBasedFrameDecoder {
                 RpcResponse rpcResponse = serializer.deserialize(bytes, RpcResponse.class);
                 rpcMessage.setData(rpcResponse);
             }
+            log.info("数据反序列化完毕");
         }
         return rpcMessage;
     }

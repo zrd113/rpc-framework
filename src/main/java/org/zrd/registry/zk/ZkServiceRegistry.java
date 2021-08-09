@@ -1,6 +1,7 @@
-package org.zrd.registry;
+package org.zrd.registry.zk;
 
 import org.apache.curator.framework.CuratorFramework;
+import org.zrd.registry.ServiceRegistry;
 import org.zrd.utils.CuratorUtils;
 
 import java.net.InetSocketAddress;

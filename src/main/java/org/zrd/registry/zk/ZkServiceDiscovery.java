@@ -1,10 +1,11 @@
-package org.zrd.registry;
+package org.zrd.registry.zk;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.curator.framework.CuratorFramework;
 import org.zrd.dto.RpcRequest;
 import org.zrd.loadbalance.ConsistentHashLoadBalance;
 import org.zrd.loadbalance.LoadBalance;
+import org.zrd.registry.ServiceDiscovery;
 import org.zrd.utils.CuratorUtils;
 import org.zrd.utils.SingletonFactory;
 

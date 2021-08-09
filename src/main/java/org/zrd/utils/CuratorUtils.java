@@ -68,7 +68,7 @@ public class CuratorUtils {
             if (PATH_SET.contains(path) || zkClient.checkExists().forPath(path) != null) {
                 log.info("服务已经存在，内容是：[{}]", path);
             } else {
-                zkClient.create().creatingParentsIfNeeded().withMode(CreateMode.PERSISTENT).forPath(path);
+                zkClient.create().creatingParentsIfNeeded().withMode(CreateMode.EPHEMERAL).forPath(path);
                 log.info("服务注册成功，内容是：[{}]", path);
             }
             PATH_SET.add(path);

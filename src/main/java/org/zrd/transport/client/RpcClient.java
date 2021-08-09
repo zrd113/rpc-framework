@@ -10,7 +10,7 @@ import org.zrd.dto.RpcMessage;
 import org.zrd.dto.RpcRequest;
 import org.zrd.dto.RpcResponse;
 import org.zrd.registry.ServiceDiscovery;
-import org.zrd.registry.ZkServiceDiscovery;
+import org.zrd.registry.zk.ZkServiceDiscovery;
 import org.zrd.transport.codec.RpcMessageDecoder;
 import org.zrd.transport.codec.RpcMessageEncoder;
 import org.zrd.transport.constants.RpcConstants;
