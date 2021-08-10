@@ -9,6 +9,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.zrd.dto.RpcMessage;
 import org.zrd.dto.RpcRequest;
 import org.zrd.dto.RpcResponse;
+import org.zrd.enums.CompressEnum;
+import org.zrd.enums.SerializationEnum;
 import org.zrd.registry.ServiceDiscovery;
 import org.zrd.registry.zk.ZkServiceDiscovery;
 import org.zrd.transport.codec.RpcMessageDecoder;
@@ -84,8 +86,8 @@ public class RpcClient  {
             unProcessedReqMap.put(request.getRequestId(), resultFuture);
             RpcMessage rpcMessage = RpcMessage.builder()
                     .data(request)
-                    .codec((byte)1)
-                    .compress((byte)1)
+                    .codec(SerializationEnum.KYRO.getCode())
+                    .compress(CompressEnum.GZIP.getCode())
                     .messageType(RpcConstants.REQUEST_TYPE)
                     .build();
             channel.writeAndFlush(rpcMessage).addListener((ChannelFutureListener)future -> {
