@@ -1,5 +1,7 @@
 package org.zrd.registry;
 
+import org.zrd.utils.extension.SPI;
+
 import java.net.InetSocketAddress;
 
 /**
@@ -7,6 +9,7 @@ import java.net.InetSocketAddress;
  * @Author ZRD
  * @Date 2021/7/13
  */
+@SPI
 public interface ServiceRegistry {
     /**
      * @Description: 提供rpc服务注册

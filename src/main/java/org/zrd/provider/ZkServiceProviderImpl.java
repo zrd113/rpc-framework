@@ -3,8 +3,8 @@ package org.zrd.provider;
 import lombok.extern.slf4j.Slf4j;
 import org.zrd.dto.RpcServiceConfig;
 import org.zrd.registry.ServiceRegistry;
-import org.zrd.registry.zk.ZkServiceRegistry;
 import org.zrd.transport.server.RpcServer;
+import org.zrd.utils.extension.ExtensionLoader;
 
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
@@ -24,7 +24,7 @@ public class ZkServiceProviderImpl implements ServiceProvider {
 
     public ZkServiceProviderImpl() {
         this.serviceMap = new ConcurrentHashMap<>();
-        this.serviceRegistry = new ZkServiceRegistry();
+        this.serviceRegistry = ExtensionLoader.getExtensionLoader(ServiceRegistry.class).getExtension("zk");
     }
 
     @Override

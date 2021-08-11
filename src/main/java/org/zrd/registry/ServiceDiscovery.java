@@ -1,6 +1,7 @@
 package org.zrd.registry;
 
 import org.zrd.dto.RpcRequest;
+import org.zrd.utils.extension.SPI;
 
 import java.net.InetSocketAddress;
 
@@ -9,6 +10,7 @@ import java.net.InetSocketAddress;
  * @Author zrd
  * @Date 2021/7/10
  */
+@SPI
 public interface ServiceDiscovery {
     /**
      * @Description: 通过请求参数找到对应的服务

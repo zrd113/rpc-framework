@@ -1,10 +1,13 @@
 package org.zrd.serialize;
 
+import org.zrd.utils.extension.SPI;
+
 /**
  * @Description 序列化接口
  * @Author ZRD
  * @Date 2021/8/5
  */
+@SPI
 public interface Serializer {
     /**
      * 序列化

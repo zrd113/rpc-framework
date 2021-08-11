@@ -5,11 +5,12 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.MessageToByteEncoder;
 import lombok.extern.slf4j.Slf4j;
 import org.zrd.compress.Compress;
-import org.zrd.compress.gzip.GzipCompress;
 import org.zrd.dto.RpcMessage;
-import org.zrd.serialize.Kyro.KryoSerializer;
+import org.zrd.enums.CompressEnum;
+import org.zrd.enums.SerializationEnum;
 import org.zrd.serialize.Serializer;
 import org.zrd.transport.constants.RpcConstants;
+import org.zrd.utils.extension.ExtensionLoader;
 
 /**
  * @Description netty编码器
@@ -29,10 +30,17 @@ public class RpcMessageEncoder extends MessageToByteEncoder<RpcMessage> {
         byte[] body = null;
         int fullLength = RpcConstants.HEAD_LENGTH;
 
-        Serializer serializer = new KryoSerializer();
+        String codecName = SerializationEnum.getName(rpcMessage.getCodec());
+        Serializer serializer = ExtensionLoader.getExtensionLoader(Serializer.class)
+                .getExtension(codecName);
+
         body = serializer.serialize(rpcMessage.getData());
         log.info("数据序列化完毕");
-        Compress compress = new GzipCompress();
+
+        String compressName = CompressEnum.getName(rpcMessage.getCompress());
+        Compress compress = ExtensionLoader.getExtensionLoader(Compress.class)
+                .getExtension(compressName);
+
         body = compress.compress(body);
         log.info("数据压缩完毕");
         fullLength += body.length;

@@ -1,6 +1,7 @@
 package org.zrd.loadbalance;
 
 import org.zrd.dto.RpcRequest;
+import org.zrd.utils.extension.SPI;
 
 import java.util.List;
 
@@ -9,6 +10,7 @@ import java.util.List;
  * @Author ZRD
  * @Date 2021/7/28
  */
+@SPI
 public interface LoadBalance {
     /**
      * @Description: 从地址列表中选择一个地址

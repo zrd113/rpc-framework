@@ -12,13 +12,13 @@ import org.zrd.dto.RpcResponse;
 import org.zrd.enums.CompressEnum;
 import org.zrd.enums.SerializationEnum;
 import org.zrd.registry.ServiceDiscovery;
-import org.zrd.registry.zk.ZkServiceDiscovery;
 import org.zrd.transport.codec.RpcMessageDecoder;
 import org.zrd.transport.codec.RpcMessageEncoder;
 import org.zrd.transport.constants.RpcConstants;
 import org.zrd.utils.ChannelProvider;
 import org.zrd.utils.SingletonFactory;
 import org.zrd.utils.UnProcessedReqMap;
+import org.zrd.utils.extension.ExtensionLoader;
 
 import java.net.InetSocketAddress;
 import java.util.concurrent.CompletableFuture;
@@ -55,7 +55,7 @@ public class RpcClient  {
                 });
 
         channelProvider = SingletonFactory.getSingleton(ChannelProvider.class);
-        serviceDiscovery = new ZkServiceDiscovery();
+        serviceDiscovery = ExtensionLoader.getExtensionLoader(ServiceDiscovery.class).getExtension("zk");
         unProcessedReqMap = SingletonFactory.getSingleton(UnProcessedReqMap.class);
     }
 

@@ -3,11 +3,10 @@ package org.zrd.registry.zk;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.curator.framework.CuratorFramework;
 import org.zrd.dto.RpcRequest;
-import org.zrd.loadbalance.ConsistentHashLoadBalance;
 import org.zrd.loadbalance.LoadBalance;
 import org.zrd.registry.ServiceDiscovery;
 import org.zrd.utils.CuratorUtils;
-import org.zrd.utils.SingletonFactory;
+import org.zrd.utils.extension.ExtensionLoader;
 
 import java.net.InetSocketAddress;
 import java.util.List;
@@ -22,7 +21,7 @@ public class ZkServiceDiscovery implements ServiceDiscovery {
     private final LoadBalance loadBalance;
 
     public ZkServiceDiscovery() {
-        this.loadBalance = SingletonFactory.getSingleton(ConsistentHashLoadBalance.class);
+        this.loadBalance = ExtensionLoader.getExtensionLoader(LoadBalance.class).getExtension("loadBalance");
     }
 
     @Override

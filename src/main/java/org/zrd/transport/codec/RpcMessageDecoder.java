@@ -5,13 +5,14 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
 import lombok.extern.slf4j.Slf4j;
 import org.zrd.compress.Compress;
-import org.zrd.compress.gzip.GzipCompress;
 import org.zrd.dto.RpcMessage;
 import org.zrd.dto.RpcRequest;
 import org.zrd.dto.RpcResponse;
-import org.zrd.serialize.Kyro.KryoSerializer;
+import org.zrd.enums.CompressEnum;
+import org.zrd.enums.SerializationEnum;
 import org.zrd.serialize.Serializer;
 import org.zrd.transport.constants.RpcConstants;
+import org.zrd.utils.extension.ExtensionLoader;
 
 import java.util.Arrays;
 
@@ -69,16 +70,25 @@ public class RpcMessageDecoder extends LengthFieldBasedFrameDecoder {
         RpcMessage rpcMessage = RpcMessage.builder()
                 .codec(codecType)
                 .messageType(messageType)
+                .compress(compressType)
                 .build();
 
         int bodyLength = fullLength - RpcConstants.HEAD_LENGTH;
         if (bodyLength > 0) {
             byte[] bytes = new byte[bodyLength];
             in.readBytes(bytes);
-            Compress compress = new GzipCompress();
+
+            String compressName = CompressEnum.getName(rpcMessage.getCompress());
+            Compress compress = ExtensionLoader.getExtensionLoader(Compress.class)
+                    .getExtension(compressName);
             bytes = compress.decompress(bytes);
+
             log.info("数据解压缩完毕");
-            Serializer serializer = new KryoSerializer();
+
+            String codecName = SerializationEnum.getName(rpcMessage.getCodec());
+            Serializer serializer = ExtensionLoader.getExtensionLoader(Serializer.class)
+                    .getExtension(codecName);
+
             if (messageType == RpcConstants.REQUEST_TYPE) {
                 RpcRequest rpcRequest = serializer.deserialize(bytes, RpcRequest.class);
                 rpcMessage.setData(rpcRequest);
