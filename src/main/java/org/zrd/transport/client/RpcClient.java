@@ -5,6 +5,7 @@ import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
+import io.netty.handler.timeout.IdleStateHandler;
 import lombok.extern.slf4j.Slf4j;
 import org.zrd.dto.RpcMessage;
 import org.zrd.dto.RpcRequest;
@@ -23,6 +24,7 @@ import org.zrd.utils.extension.ExtensionLoader;
 import java.net.InetSocketAddress;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @Description netty客户端
@@ -48,6 +50,8 @@ public class RpcClient  {
                     @Override
                     protected void initChannel(SocketChannel ch) throws Exception {
                         ChannelPipeline pipeline = ch.pipeline();
+                        //超过5秒钟没有请求发送则触发userEventTriggered
+                        pipeline.addLast(new IdleStateHandler(0, 5, 0, TimeUnit.SECONDS));
                         pipeline.addLast(new RpcMessageDecoder());
                         pipeline.addLast(new RpcMessageEncoder());
                         pipeline.addLast(new RpcClientHandler());

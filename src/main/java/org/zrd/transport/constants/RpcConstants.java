@@ -1,7 +1,7 @@
 package org.zrd.transport.constants;
 
 /**
- * @Description TODO
+ * @Description rpc常量
  * @Author ZRD
  * @Date 2021/8/6
  */
@@ -12,5 +12,9 @@ public class RpcConstants {
     public static final int HEAD_LENGTH = 12;
     public static final byte REQUEST_TYPE = 1;
     public static final byte RESPONSE_TYPE = 2;
+    public static final byte HEARTBEAT_REQUEST_TYPE = 3;
+    public static final byte HEARTBEAT_RESPONSE_TYPE = 4;
+    public static final String PING = "ping";
+    public static final String PONG = "pong";
     public static final int MAX_FRAME_LENGTH = 8 * 1024 * 1024;
 }

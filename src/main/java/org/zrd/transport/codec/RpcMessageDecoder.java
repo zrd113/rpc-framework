@@ -73,6 +73,15 @@ public class RpcMessageDecoder extends LengthFieldBasedFrameDecoder {
                 .compress(compressType)
                 .build();
 
+        if (messageType == RpcConstants.HEARTBEAT_REQUEST_TYPE) {
+            rpcMessage.setData(RpcConstants.PING);
+            return rpcMessage;
+        }
+        if (messageType == RpcConstants.HEARTBEAT_RESPONSE_TYPE) {
+            rpcMessage.setData(RpcConstants.PONG);
+            return rpcMessage;
+        }
+
         int bodyLength = fullLength - RpcConstants.HEAD_LENGTH;
         if (bodyLength > 0) {
             byte[] bytes = new byte[bodyLength];

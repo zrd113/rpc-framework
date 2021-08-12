@@ -3,6 +3,8 @@ package org.zrd.transport.server;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
+import io.netty.handler.timeout.IdleState;
+import io.netty.handler.timeout.IdleStateEvent;
 import lombok.extern.slf4j.Slf4j;
 import org.zrd.dto.RpcMessage;
 import org.zrd.dto.RpcRequest;
@@ -33,19 +35,41 @@ public class RpcServerHandler extends SimpleChannelInboundHandler {
                 .codec(rpcMessageReq.getCodec())
                 .compress(rpcMessageReq.getCompress())
                 .build();
-
-        RpcRequest request = (RpcRequest) rpcMessageReq.getData();
-        RpcResponse response = invoke(request, ctx);
-        rpcMessageRes.setMessageType(RpcConstants.RESPONSE_TYPE);
-        if (ctx.channel().isActive() && ctx.channel().isWritable()) {
-            rpcMessageRes.setData(response);
+        byte messageType = rpcMessageReq.getMessageType();
+        if (messageType == RpcConstants.HEARTBEAT_REQUEST_TYPE) {
+            log.info("服务端收到心跳检测：{}", RpcConstants.PING);
+            rpcMessageRes.setMessageType(RpcConstants.HEARTBEAT_RESPONSE_TYPE);
+            rpcMessageRes.setData(RpcConstants.PONG);
+        } else {
+            RpcRequest request = (RpcRequest) rpcMessageReq.getData();
+            RpcResponse response = invoke(request, ctx);
+            rpcMessageRes.setMessageType(RpcConstants.RESPONSE_TYPE);
+            if (ctx.channel().isActive() && ctx.channel().isWritable()) {
+                rpcMessageRes.setData(response);
+            }
+            log.info("服务端调用完毕，结果为【{}】", response);
         }
+        ctx.writeAndFlush(rpcMessageRes).addListener((ChannelFutureListener)future -> {
+            //类似于CLOSE_ON_FAILURE，不能像CLOSE一样直接关闭，不然收不到响应
+            if (!future.isSuccess()) {
+                log.info("服务端发送结果失败：{}", future.cause());
+                future.channel().close();
+            }
+            log.info("服务端发送结果：{}", rpcMessageRes.getData());
+        });
+    }
 
-        log.info("服务端调用完毕，结果为【{}】", response);
-
-        ctx.writeAndFlush(rpcMessageRes).addListener(ChannelFutureListener.CLOSE_ON_FAILURE);
-
-        log.info("将结果返回给客户端");
+    @Override
+    public void userEventTriggered(ChannelHandlerContext ctx, Object evt) throws Exception {
+        if (evt instanceof IdleStateEvent) {
+            IdleState state = ((IdleStateEvent) evt).state();
+            if (state == IdleState.READER_IDLE) {
+                log.info("服务端读空闲，关闭链接");
+                ctx.close();
+            }
+        } else {
+            super.userEventTriggered(ctx, evt);
+        }
     }
 
     @Override

@@ -30,20 +30,23 @@ public class RpcMessageEncoder extends MessageToByteEncoder<RpcMessage> {
         byte[] body = null;
         int fullLength = RpcConstants.HEAD_LENGTH;
 
-        String codecName = SerializationEnum.getName(rpcMessage.getCodec());
-        Serializer serializer = ExtensionLoader.getExtensionLoader(Serializer.class)
-                .getExtension(codecName);
+        byte messageType = rpcMessage.getMessageType();
+        if (messageType != RpcConstants.HEARTBEAT_REQUEST_TYPE && messageType != RpcConstants.HEARTBEAT_RESPONSE_TYPE) {
+            String codecName = SerializationEnum.getName(rpcMessage.getCodec());
+            Serializer serializer = ExtensionLoader.getExtensionLoader(Serializer.class)
+                    .getExtension(codecName);
 
-        body = serializer.serialize(rpcMessage.getData());
-        log.info("数据序列化完毕");
+            body = serializer.serialize(rpcMessage.getData());
+            log.info("数据序列化完毕");
 
-        String compressName = CompressEnum.getName(rpcMessage.getCompress());
-        Compress compress = ExtensionLoader.getExtensionLoader(Compress.class)
-                .getExtension(compressName);
+            String compressName = CompressEnum.getName(rpcMessage.getCompress());
+            Compress compress = ExtensionLoader.getExtensionLoader(Compress.class)
+                    .getExtension(compressName);
 
-        body = compress.compress(body);
-        log.info("数据压缩完毕");
-        fullLength += body.length;
+            body = compress.compress(body);
+            log.info("数据压缩完毕");
+            fullLength += body.length;
+        }
 
         if (body != null) {
             out.writeBytes(body);
