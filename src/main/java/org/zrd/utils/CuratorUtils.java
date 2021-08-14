@@ -32,7 +32,7 @@ public class CuratorUtils {
 
     private static final int MAX_RETRIES = 3;
 
-    private static final String DEFAULT_ZK_ADDRESS = "42.192.43.131:2181";
+    private static final String DEFAULT_ZK_ADDRESS = "***";
 
     private static final Map<String, List<String>> SERVICE_ADDRESS_MAP = new ConcurrentHashMap<>();;
 
