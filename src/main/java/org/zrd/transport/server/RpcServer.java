@@ -9,6 +9,7 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.timeout.IdleStateHandler;
+import io.netty.util.concurrent.DefaultEventExecutorGroup;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.zrd.dto.RpcServiceConfig;
@@ -16,6 +17,7 @@ import org.zrd.provider.ServiceProvider;
 import org.zrd.provider.ZkServiceProviderImpl;
 import org.zrd.transport.codec.RpcMessageDecoder;
 import org.zrd.transport.codec.RpcMessageEncoder;
+import org.zrd.utils.CustomShutdownHook;
 import org.zrd.utils.SingletonFactory;
 
 import java.util.concurrent.TimeUnit;
@@ -34,8 +36,11 @@ public class RpcServer {
     private ServiceProvider serviceProvider = SingletonFactory.getSingleton(ZkServiceProviderImpl.class);
 
     public void run() {
+        CustomShutdownHook.getCustomShutdownHook().clearAll();
         NioEventLoopGroup bossGroup = new NioEventLoopGroup();
         NioEventLoopGroup workerGroup = new NioEventLoopGroup();
+        DefaultEventExecutorGroup serviceHandlerGroup = new DefaultEventExecutorGroup(
+                Runtime.getRuntime().availableProcessors() * 2);
 
         try {
             ServerBootstrap bootstrap = new ServerBootstrap();
@@ -51,7 +56,7 @@ public class RpcServer {
                             pipeline.addLast(new IdleStateHandler(30, 0, 0, TimeUnit.SECONDS));
                             pipeline.addLast(new RpcMessageDecoder());
                             pipeline.addLast(new RpcMessageEncoder());
-                            pipeline.addLast(new RpcServerHandler());
+                            pipeline.addLast(serviceHandlerGroup, new RpcServerHandler());
                         }
                     });
 

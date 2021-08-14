@@ -6,6 +6,7 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.timeout.IdleStateHandler;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.zrd.dto.RpcMessage;
 import org.zrd.dto.RpcRequest;
@@ -23,7 +24,6 @@ import org.zrd.utils.extension.ExtensionLoader;
 
 import java.net.InetSocketAddress;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -69,7 +69,8 @@ public class RpcClient  {
      * @Return: io.netty.channel.Channel
      * @Date: 2021/7/16
      */
-    public Channel doConnect(InetSocketAddress inetSocketAddress) throws ExecutionException, InterruptedException {
+    @SneakyThrows
+    public Channel doConnect(InetSocketAddress inetSocketAddress) {
         CompletableFuture<Channel> completableFuture = new CompletableFuture<>();
         bootstrap.connect(inetSocketAddress).addListener((ChannelFutureListener)future -> {
            if (future.isSuccess()) {
@@ -82,7 +83,7 @@ public class RpcClient  {
         return completableFuture.get();
     }
 
-    public Object sendRequest(RpcRequest request) throws ExecutionException, InterruptedException {
+    public Object sendRequest(RpcRequest request) {
         CompletableFuture<RpcResponse<Object>> resultFuture = new CompletableFuture<>();
         InetSocketAddress inetSocketAddress = serviceDiscovery.findService(request);
         Channel channel = getChannel(inetSocketAddress);
@@ -103,10 +104,10 @@ public class RpcClient  {
                 }
             });
         }
-        return resultFuture.get();
+        return resultFuture;
     }
 
-    public Channel getChannel(InetSocketAddress inetSocketAddress) throws ExecutionException, InterruptedException {
+    public Channel getChannel(InetSocketAddress inetSocketAddress) {
         Channel channel = channelProvider.get(inetSocketAddress);
         if (channel == null) {
             channel = doConnect(inetSocketAddress);

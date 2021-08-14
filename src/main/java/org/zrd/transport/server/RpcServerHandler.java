@@ -14,6 +14,7 @@ import org.zrd.provider.ZkServiceProviderImpl;
 import org.zrd.transport.constants.RpcConstants;
 import org.zrd.utils.SingletonFactory;
 
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 /**
@@ -78,23 +79,23 @@ public class RpcServerHandler extends SimpleChannelInboundHandler {
         ctx.close();
     }
 
-    private RpcResponse invoke(RpcRequest request, ChannelHandlerContext ctx) throws Exception {
+    private RpcResponse invoke(RpcRequest request, ChannelHandlerContext ctx) {
         Object[] args = request.getParameter();
         Class<?>[] argsTypes = request.getParameterTypes();
         String className = request.getClassName();
         String methodName = request.getMethodName();
-
         log.info("服务端收到的请求参数为【{}】", request);
-
         Object service = serviceProvider.getService(request.getClassName());
-
         log.info("服务端调用的服务为【{}】", service.getClass().getName());
-
-        Method method = service.getClass().getMethod(methodName, argsTypes);
-        Object o = method.invoke(service, args);
-        RpcResponse success = RpcResponse.success(o, request.getRequestId(), "执行成功");
-
-        log.info("服务调用成功");
-        return success;
+        Method method = null;
+        try {
+            method = service.getClass().getMethod(methodName, argsTypes);
+            Object o = method.invoke(service, args);
+            log.info("服务调用成功");
+            return RpcResponse.success(o, request.getRequestId(), "执行成功");
+        } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
+            log.info("服务调用失败");
+            return RpcResponse.fail(e.getMessage());
+        }
     }
 }

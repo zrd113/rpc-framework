@@ -1,5 +1,6 @@
 package org.zrd.proxy;
 
+import lombok.SneakyThrows;
 import org.zrd.dto.RpcRequest;
 import org.zrd.dto.RpcResponse;
 import org.zrd.transport.client.RpcClient;
@@ -8,6 +9,7 @@ import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * @Description 代理类，用于发送请求
@@ -27,7 +29,8 @@ public class RpcProxy implements InvocationHandler {
     }
 
     @Override
-    public Object invoke(Object o, Method method, Object[] objects) throws Throwable {
+    @SneakyThrows
+    public Object invoke(Object o, Method method, Object[] objects) {
         RpcRequest rpcRequest = RpcRequest.builder()
                 .methodName(method.getName())
                 .className(method.getDeclaringClass().getName())
@@ -36,7 +39,7 @@ public class RpcProxy implements InvocationHandler {
                 .requestId(UUID.randomUUID().toString())
                 .build();
 
-        RpcResponse<Object> response = (RpcResponse<Object>) rpcClient.sendRequest(rpcRequest);
-        return  response.getData();
+        CompletableFuture<RpcResponse<Object>> response = (CompletableFuture<RpcResponse<Object>>) rpcClient.sendRequest(rpcRequest);
+        return response.get().getData();
     }
 }

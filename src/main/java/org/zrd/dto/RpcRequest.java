@@ -2,8 +2,6 @@ package org.zrd.dto;
 
 import lombok.*;
 
-import java.io.Serializable;
-
 /**
  * @Author zrd
  * @Date 2021/5/30
@@ -13,9 +11,7 @@ import java.io.Serializable;
 @Getter
 @Builder
 @ToString
-public class RpcRequest implements Serializable {
-
-    private static final long serialVersionUID = 1905122041950251207L;
+public class RpcRequest {
 
     private String requestId;
 

@@ -2,8 +2,6 @@ package org.zrd.dto;
 
 import lombok.*;
 
-import java.io.Serializable;
-
 /**
  * @Author zrd
  * @Date 2021/5/30
@@ -14,9 +12,7 @@ import java.io.Serializable;
 @Setter
 @Builder
 @ToString
-public class RpcResponse<T> implements Serializable {
-
-    private static final long serialVersionUID = 715745410605631233L;
+public class RpcResponse<T> {
 
     private T data;
 
