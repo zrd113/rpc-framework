@@ -10,11 +10,15 @@ import org.zrd.annotation.RpcReference;
  */
 @Component
 public class HelloController {
-    @RpcReference
+    @RpcReference(version = "1.0", group = "HelloServiceImpl")
     private HelloService helloService;
+
+    @RpcReference(version = "1.0", group = "HelloServiceImpl1")
+    private HelloService helloService1;
 
     public void test() {
         String hello = helloService.Hello();
-        System.out.println(hello);
+        String hello1 = helloService1.Hello();
+        System.out.println(hello + hello1);
     }
 }

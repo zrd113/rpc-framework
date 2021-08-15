@@ -3,6 +3,7 @@ package org.zrd.proxy;
 import lombok.SneakyThrows;
 import org.zrd.dto.RpcRequest;
 import org.zrd.dto.RpcResponse;
+import org.zrd.dto.RpcServiceConfig;
 import org.zrd.transport.client.RpcClient;
 
 import java.lang.reflect.InvocationHandler;
@@ -19,9 +20,11 @@ import java.util.concurrent.CompletableFuture;
 public class RpcProxy implements InvocationHandler {
 
     private final RpcClient rpcClient;
+    private final RpcServiceConfig rpcServiceConfig;
 
-    public RpcProxy(RpcClient rpcClient) {
+    public RpcProxy(RpcClient rpcClient, RpcServiceConfig rpcServiceConfig) {
         this.rpcClient = rpcClient;
+        this.rpcServiceConfig = rpcServiceConfig;
     }
 
     public <T> T getProxy(Class<T> clazz) {
@@ -37,6 +40,8 @@ public class RpcProxy implements InvocationHandler {
                 .parameter(objects)
                 .parameterTypes(method.getParameterTypes())
                 .requestId(UUID.randomUUID().toString())
+                .group(rpcServiceConfig.getGroup())
+                .version(rpcServiceConfig.getVersion())
                 .build();
 
         CompletableFuture<RpcResponse<Object>> response = (CompletableFuture<RpcResponse<Object>>) rpcClient.sendRequest(rpcRequest);

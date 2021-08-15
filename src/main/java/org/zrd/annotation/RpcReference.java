@@ -11,4 +11,9 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Inherited
 public @interface RpcReference {
+    //service版本
+    String version() default "";
+
+    //当一个接口有多个实现类时，用group来标识
+    String group() default "";
 }

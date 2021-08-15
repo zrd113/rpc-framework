@@ -23,4 +23,12 @@ public class RpcRequest {
 
     private Object[] parameter;
 
+    private String version;
+
+    private String group;
+
+    public String getRpcServiceName() {
+        return this.getClassName() + this.getVersion() + this.getGroup();
+    }
+
 }

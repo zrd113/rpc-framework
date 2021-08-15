@@ -82,10 +82,9 @@ public class RpcServerHandler extends SimpleChannelInboundHandler {
     private RpcResponse invoke(RpcRequest request, ChannelHandlerContext ctx) {
         Object[] args = request.getParameter();
         Class<?>[] argsTypes = request.getParameterTypes();
-        String className = request.getClassName();
         String methodName = request.getMethodName();
         log.info("服务端收到的请求参数为【{}】", request);
-        Object service = serviceProvider.getService(request.getClassName());
+        Object service = serviceProvider.getService(request.getRpcServiceName());
         log.info("服务端调用的服务为【{}】", service.getClass().getName());
         Method method = null;
         try {

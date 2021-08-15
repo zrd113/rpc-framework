@@ -17,6 +17,10 @@ public class RpcServiceConfig {
 
     private String rpcServiceName;
 
+    private String version = "";
+
+    private String group = "";
+
     private Object service;
 
 }

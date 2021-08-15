@@ -26,7 +26,7 @@ public class ZkServiceDiscovery implements ServiceDiscovery {
 
     @Override
     public InetSocketAddress findService(RpcRequest request) {
-        String rpcServiceName = request.getClassName();
+        String rpcServiceName = request.getRpcServiceName();
         CuratorFramework zkClient = CuratorUtils.getZkClient();
         List<String> serviceUrlList = CuratorUtils.getChildrenNodes(zkClient, rpcServiceName);
         if (serviceUrlList == null || serviceUrlList.size() == 0) {

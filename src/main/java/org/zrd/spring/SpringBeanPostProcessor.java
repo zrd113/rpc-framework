@@ -35,12 +35,15 @@ public class SpringBeanPostProcessor implements BeanPostProcessor {
     @Override
     public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
         if (bean.getClass().isAnnotationPresent(RpcService.class)) {
-            RpcServiceConfig rpcService = new RpcServiceConfig();
-            rpcService.setService(bean);
-            rpcService.setRpcServiceName(bean.getClass().getInterfaces()[0].getCanonicalName());
-            serviceProvider.publishService(rpcService);
+            RpcService rpcService = bean.getClass().getAnnotation(RpcService.class);
+            RpcServiceConfig rpcServiceConfig = RpcServiceConfig.builder()
+                    .version(rpcService.version())
+                    .group(rpcService.group())
+                    .service(bean)
+                    .rpcServiceName(bean.getClass().getInterfaces()[0].getCanonicalName() + rpcService.version() + rpcService.group())
+                    .build();
+            serviceProvider.publishService(rpcServiceConfig);
         }
-
         return bean;
     }
 
@@ -51,7 +54,11 @@ public class SpringBeanPostProcessor implements BeanPostProcessor {
         for (Field field : fields) {
             RpcReference annotation = field.getAnnotation(RpcReference.class);
             if (annotation != null) {
-                RpcProxy rpcProxy = new RpcProxy(rpcClient);
+                RpcServiceConfig rpcServiceConfig = RpcServiceConfig.builder()
+                        .group(annotation.group())
+                        .version(annotation.version())
+                        .build();
+                RpcProxy rpcProxy = new RpcProxy(rpcClient, rpcServiceConfig);
                 Object proxy = rpcProxy.getProxy(field.getType());
                 field.setAccessible(true);
                 try {
