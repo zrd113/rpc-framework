@@ -38,7 +38,7 @@ public class RpcServerHandler extends SimpleChannelInboundHandler {
                 .build();
         byte messageType = rpcMessageReq.getMessageType();
         if (messageType == RpcConstants.HEARTBEAT_REQUEST_TYPE) {
-            log.info("服务端收到心跳检测：{}", RpcConstants.PING);
+            log.info("服务端收到心跳检测：{}", rpcMessageReq.getData());
             rpcMessageRes.setMessageType(RpcConstants.HEARTBEAT_RESPONSE_TYPE);
             rpcMessageRes.setData(RpcConstants.PONG);
         } else {

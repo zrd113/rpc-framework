@@ -13,6 +13,16 @@ import org.zrd.transport.constants.RpcConstants;
 import org.zrd.utils.extension.ExtensionLoader;
 
 /**
+ *   0     1     2     3     4        5    6    7    8     9    10     11            12      13        14
+ *   +-----+-----+-----+-----+--------+----+----+----+-----+-----+-----+-------------+-------+----------+
+ *   |   magic   code        |version |    full length     |head length| messageType | codec | compress |
+ *   +-----------------------+--------+--------------------+-----------+-------------+-------+----------+
+ *   |                                        extended field                                            |
+ *   +--------------------------------------------------------------------------------------------------+
+ *   |                                                                                                  |
+ *   |                                         body                                                     |
+ *   |                                                                                                  |
+ *   +--------------------------------------------------------------------------------------------------+
  * @Description netty编码器
  * @Author ZRD
  * @Date 2021/8/4
@@ -23,12 +33,13 @@ public class RpcMessageEncoder extends MessageToByteEncoder<RpcMessage> {
     protected void encode(ChannelHandlerContext channelHandlerContext, RpcMessage rpcMessage, ByteBuf out) throws Exception {
         out.writeBytes(RpcConstants.MAGIC_NUMBER);
         out.writeByte(RpcConstants.VERSION);
-        out.writerIndex(out.writerIndex() + 4);
+        out.writerIndex(out.writerIndex() + 6);
         out.writeByte(rpcMessage.getMessageType());
         out.writeByte(rpcMessage.getCodec());
         out.writeByte(rpcMessage.getCompress());
         byte[] body = null;
-        int fullLength = RpcConstants.HEAD_LENGTH;
+        int fullLength = RpcConstants.FIXED_HEAD_LENGTH;
+        short headLength = RpcConstants.FIXED_HEAD_LENGTH;
 
         byte messageType = rpcMessage.getMessageType();
         if (messageType != RpcConstants.HEARTBEAT_REQUEST_TYPE && messageType != RpcConstants.HEARTBEAT_RESPONSE_TYPE) {
@@ -45,7 +56,7 @@ public class RpcMessageEncoder extends MessageToByteEncoder<RpcMessage> {
 
             body = compress.compress(body);
             log.info("数据压缩完毕");
-            fullLength += body.length;
+            fullLength = headLength + body.length;
         }
 
         if (body != null) {
@@ -55,6 +66,7 @@ public class RpcMessageEncoder extends MessageToByteEncoder<RpcMessage> {
         int writeIndex = out.writerIndex();
         out.writerIndex(writeIndex - fullLength + RpcConstants.MAGIC_NUMBER.length + 1);
         out.writeInt(fullLength);
+        out.writeShort(headLength);
         out.writerIndex(writeIndex);
     }
 }

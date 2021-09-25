@@ -1,4 +1,4 @@
-package org.zrd.service;
+package org.zrd.testServer.service;
 
 import org.springframework.stereotype.Component;
 import org.zrd.annotation.RpcReference;
@@ -11,10 +11,10 @@ import org.zrd.annotation.RpcReference;
 @Component
 public class HelloController {
     @RpcReference(version = "1.0", group = "HelloServiceImpl")
-    private HelloService helloService;
+    private org.zrd.testServer.service.HelloService helloService;
 
     @RpcReference(version = "1.0", group = "HelloServiceImpl1")
-    private HelloService helloService1;
+    private org.zrd.testServer.service.HelloService helloService1;
 
     public void test() {
         String hello = helloService.Hello();

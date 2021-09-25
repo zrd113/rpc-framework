@@ -51,7 +51,7 @@ public class RpcClientHandler extends SimpleChannelInboundHandler {
                         .codec(SerializationEnum.KYRO.getCode())
                         .data(RpcConstants.PING)
                         .build();
-                ctx.writeAndFlush(rpcMessage).addListener((ChannelFutureListener)future -> {
+                ctx.writeAndFlush(rpcMessage).addListener((ChannelFutureListener) future -> {
                     //类似于CLOSE_ON_FAILURE，不能像CLOSE一样直接关闭，不然收不到响应
                     if (!future.isSuccess()) {
                         log.info("客户端发送心跳检测失败：{}", future.cause());

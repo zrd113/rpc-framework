@@ -1,4 +1,4 @@
-package org.zrd.service;
+package org.zrd.testServer.service;
 
 import org.zrd.annotation.RpcService;
 

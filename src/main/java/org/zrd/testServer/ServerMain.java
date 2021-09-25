@@ -1,4 +1,4 @@
-package org.zrd;
+package org.zrd.testServer;
 
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.ComponentScan;

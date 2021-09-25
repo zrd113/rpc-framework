@@ -64,6 +64,7 @@ public class RpcMessageDecoder extends LengthFieldBasedFrameDecoder {
         checkMagicNumber(in);
         checkVersion(in);
         int fullLength = in.readInt();
+        short headLength = in.readShort();
         byte messageType = in.readByte();
         byte codecType = in.readByte();
         byte compressType = in.readByte();
@@ -82,7 +83,7 @@ public class RpcMessageDecoder extends LengthFieldBasedFrameDecoder {
             return rpcMessage;
         }
 
-        int bodyLength = fullLength - RpcConstants.HEAD_LENGTH;
+        int bodyLength = fullLength - headLength;
         if (bodyLength > 0) {
             byte[] bytes = new byte[bodyLength];
             in.readBytes(bytes);

@@ -40,9 +40,7 @@ public class RpcClient  {
 
     public RpcClient() {
         NioEventLoopGroup bossGroup = new NioEventLoopGroup();
-
         bootstrap = new Bootstrap();
-
         bootstrap.group(bossGroup)
                 .channel(NioSocketChannel.class)
                 .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 5000)
