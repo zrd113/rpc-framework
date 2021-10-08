@@ -1,7 +1,7 @@
 /.idea/
 /target/
 /rpc-framework.iml
-
+/.gitignore
 /.settings
 */.settings
 .classpath

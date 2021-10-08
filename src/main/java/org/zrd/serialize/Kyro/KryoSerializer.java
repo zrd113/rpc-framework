@@ -5,6 +5,8 @@ import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
 import org.zrd.dto.RpcRequest;
 import org.zrd.dto.RpcResponse;
+import org.zrd.enums.RpcErrorMessageEnum;
+import org.zrd.exception.RpcException;
 import org.zrd.serialize.Serializer;
 
 import java.io.ByteArrayInputStream;
@@ -34,9 +36,8 @@ public class KryoSerializer implements Serializer {
             kryoThreadLocal.remove();
             return output.toBytes();
         } catch (IOException e) {
-            e.printStackTrace();
+            throw new RpcException(RpcErrorMessageEnum.SERIALIZATION_FAIL);
         }
-        return null;
     }
 
     @Override
@@ -48,9 +49,8 @@ public class KryoSerializer implements Serializer {
             kryoThreadLocal.remove();
             return clazz.cast(o);
         } catch (IOException e) {
-            e.printStackTrace();
+            throw new RpcException(RpcErrorMessageEnum.DESERIALIZATION_FAIL);
         }
-        return null;
     }
 
 }

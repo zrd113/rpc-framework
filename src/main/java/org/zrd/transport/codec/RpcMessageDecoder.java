@@ -14,7 +14,10 @@ import org.zrd.serialize.Serializer;
 import org.zrd.transport.constants.RpcConstants;
 import org.zrd.utils.extension.ExtensionLoader;
 
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @Description netty解码器
@@ -51,7 +54,7 @@ public class RpcMessageDecoder extends LengthFieldBasedFrameDecoder {
                 try {
                     return decodeBuf(byteBuf);
                 } catch (Exception e) {
-                    log.error("数据解码出错", e);
+                    throw e;
                 } finally {
                     byteBuf.release();
                 }
@@ -64,14 +67,18 @@ public class RpcMessageDecoder extends LengthFieldBasedFrameDecoder {
         checkMagicNumber(in);
         checkVersion(in);
         int fullLength = in.readInt();
-        short headLength = in.readShort();
+        int headLength = in.readInt();
         byte messageType = in.readByte();
         byte codecType = in.readByte();
         byte compressType = in.readByte();
+        byte status = in.readByte();
+        int attachmentLen = in.readInt();
+
         RpcMessage rpcMessage = RpcMessage.builder()
                 .codec(codecType)
                 .messageType(messageType)
                 .compress(compressType)
+                .status(status)
                 .build();
 
         if (messageType == RpcConstants.HEARTBEAT_REQUEST_TYPE) {
@@ -81,6 +88,33 @@ public class RpcMessageDecoder extends LengthFieldBasedFrameDecoder {
         if (messageType == RpcConstants.HEARTBEAT_RESPONSE_TYPE) {
             rpcMessage.setData(RpcConstants.PONG);
             return rpcMessage;
+        }
+
+        String codecName = SerializationEnum.getName(rpcMessage.getCodec());
+        Serializer serializer = ExtensionLoader.getExtensionLoader(Serializer.class)
+                .getExtension(codecName);
+
+        //解码扩展字段
+        if (attachmentLen > 0) {
+            Map<String, Object> attachment = new HashMap<>(attachmentLen);
+            int keySize = 0;
+            byte[] keyBytes = null;
+            String key = null;
+            int valueSize = 0;
+            byte[] valueBytes = null;
+            Object value = null;
+            for (int i = 0; i < attachmentLen; i++) {
+                keySize = in.readInt();
+                keyBytes = new byte[keySize];
+                in.readBytes(keyBytes);
+                key = new String(keyBytes, StandardCharsets.UTF_8);
+                valueSize = in.readInt();
+                valueBytes = new byte[valueSize];
+                in.readBytes(valueBytes);
+                value = serializer.deserialize(valueBytes, Object.class);
+                attachment.put(key, value);
+            }
+            rpcMessage.setAttachment(attachment);
         }
 
         int bodyLength = fullLength - headLength;
@@ -94,10 +128,6 @@ public class RpcMessageDecoder extends LengthFieldBasedFrameDecoder {
             bytes = compress.decompress(bytes);
 
             log.info("数据解压缩完毕");
-
-            String codecName = SerializationEnum.getName(rpcMessage.getCodec());
-            Serializer serializer = ExtensionLoader.getExtensionLoader(Serializer.class)
-                    .getExtension(codecName);
 
             if (messageType == RpcConstants.REQUEST_TYPE) {
                 RpcRequest rpcRequest = serializer.deserialize(bytes, RpcRequest.class);

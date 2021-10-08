@@ -18,7 +18,7 @@ public class HelloController {
 
     public void test() {
         String hello = helloService.Hello();
-        String hello1 = helloService1.Hello();
-        System.out.println(hello + hello1);
+        //String hello1 = helloService1.Hello();
+        System.out.println(hello);
     }
 }

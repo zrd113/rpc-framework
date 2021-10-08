@@ -19,23 +19,24 @@ import org.zrd.utils.UnProcessedReqMap;
  * @Date 2021/5/31
  */
 @Slf4j
-public class RpcClientHandler extends SimpleChannelInboundHandler {
+public class RpcClientHandler extends SimpleChannelInboundHandler<RpcMessage> {
     private final UnProcessedReqMap unProcessedReqMap;
+    private final RpcClient rpcClient;
 
-    public RpcClientHandler() {
-        unProcessedReqMap = SingletonFactory.getSingleton(UnProcessedReqMap.class);
+    public RpcClientHandler(RpcClient rpcClient) {
+        this.unProcessedReqMap = SingletonFactory.getSingleton(UnProcessedReqMap.class);
+        this.rpcClient = rpcClient;
     }
 
     @Override
-    protected void channelRead0(ChannelHandlerContext ctx, Object msg) throws Exception {
-        RpcMessage rpcMessage = (RpcMessage) msg;
-        byte messageType = rpcMessage.getMessageType();
+    protected void channelRead0(ChannelHandlerContext ctx, RpcMessage msg) throws Exception {
+        byte messageType = msg.getMessageType();
         if (messageType == RpcConstants.HEARTBEAT_RESPONSE_TYPE) {
-            log.info("客户端收到：{}", rpcMessage.getData());
+            log.info("客户端收到：{}", msg.getData());
         } else {
-            log.info("将返回结果设置到 completableFuture 中");
-            RpcResponse<Object> response = (RpcResponse<Object>) rpcMessage.getData();
+            RpcResponse<Object> response = (RpcResponse<Object>) msg.getData();
             unProcessedReqMap.complete(response);
+            log.info("将返回结果设置到 completableFuture 中");
         }
     }
 
@@ -66,7 +67,18 @@ public class RpcClientHandler extends SimpleChannelInboundHandler {
     }
 
     @Override
+    public void channelInactive(ChannelHandlerContext ctx) throws Exception {
+//        Channel channel = ctx.channel();
+//        if (channel != null) {
+//            channel.close();
+//            ctx.close();
+//        }
+        System.out.println("----------------------channelInactive");
+    }
+
+    @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
+        System.out.println("----------------------exceptionCaught");
         cause.printStackTrace();
         ctx.close();
     }

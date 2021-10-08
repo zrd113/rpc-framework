@@ -1,6 +1,5 @@
 package org.zrd.proxy;
 
-import lombok.SneakyThrows;
 import org.zrd.dto.RpcRequest;
 import org.zrd.dto.RpcResponse;
 import org.zrd.dto.RpcServiceConfig;
@@ -32,8 +31,7 @@ public class RpcProxy implements InvocationHandler {
     }
 
     @Override
-    @SneakyThrows
-    public Object invoke(Object o, Method method, Object[] objects) {
+    public Object invoke(Object o, Method method, Object[] objects) throws Throwable {
         RpcRequest rpcRequest = RpcRequest.builder()
                 .methodName(method.getName())
                 .className(method.getDeclaringClass().getName())

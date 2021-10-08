@@ -23,6 +23,7 @@ import org.zrd.utils.UnProcessedReqMap;
 import org.zrd.utils.extension.ExtensionLoader;
 
 import java.net.InetSocketAddress;
+import java.util.HashMap;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
@@ -32,7 +33,7 @@ import java.util.concurrent.TimeUnit;
  * @Date 2021/5/30
  */
 @Slf4j
-public class RpcClient  {
+public class RpcClient {
     private final Bootstrap bootstrap;
     private final ChannelProvider channelProvider;
     private final ServiceDiscovery serviceDiscovery;
@@ -48,11 +49,10 @@ public class RpcClient  {
                     @Override
                     protected void initChannel(SocketChannel ch) throws Exception {
                         ChannelPipeline pipeline = ch.pipeline();
-                        //超过5秒钟没有请求发送则触发userEventTriggered
                         pipeline.addLast(new IdleStateHandler(0, 5, 0, TimeUnit.SECONDS));
                         pipeline.addLast(new RpcMessageDecoder());
                         pipeline.addLast(new RpcMessageEncoder());
-                        pipeline.addLast(new RpcClientHandler());
+                        pipeline.addLast(new RpcClientHandler(RpcClient.this));
                     }
                 });
 
@@ -70,13 +70,15 @@ public class RpcClient  {
     @SneakyThrows
     public Channel doConnect(InetSocketAddress inetSocketAddress) {
         CompletableFuture<Channel> completableFuture = new CompletableFuture<>();
-        bootstrap.connect(inetSocketAddress).addListener((ChannelFutureListener)future -> {
-           if (future.isSuccess()) {
-               log.info("客户端[{}]连接成功", inetSocketAddress.toString());
-               completableFuture.complete(future.channel());
-           } else {
-               log.error("客户端[{}]连接失败", inetSocketAddress.toString());
-           }
+        bootstrap.connect(inetSocketAddress).addListener((ChannelFutureListener) future -> {
+            if (future.isSuccess()) {
+                log.info("客户端[{}]连接成功", inetSocketAddress.toString());
+                completableFuture.complete(future.channel());
+
+            } else {
+                log.error("客户端[{}]连接失败", inetSocketAddress.toString());
+                future.channel().close();
+            }
         });
         return completableFuture.get();
     }
@@ -92,13 +94,15 @@ public class RpcClient  {
                     .codec(SerializationEnum.KYRO.getCode())
                     .compress(CompressEnum.GZIP.getCode())
                     .messageType(RpcConstants.REQUEST_TYPE)
+                    .status((byte) 0)
+                    .attachment(new HashMap<>())
                     .build();
-            channel.writeAndFlush(rpcMessage).addListener((ChannelFutureListener)future -> {
+            channel.writeAndFlush(rpcMessage).addListener((ChannelFutureListener) future -> {
                 if (future.isSuccess()) {
                     log.info("客户端成功发送消息[{}]", rpcMessage);
                 } else {
                     future.channel().close();
-                    log.error("客户端发送失败");
+                    log.error("客户端发送失败" + future.cause());
                 }
             });
         }

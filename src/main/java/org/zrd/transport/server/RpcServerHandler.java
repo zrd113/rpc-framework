@@ -16,13 +16,14 @@ import org.zrd.utils.SingletonFactory;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.HashMap;
 
 /**
  * @Author zrd
  * @Date 2021/5/30
  */
 @Slf4j
-public class RpcServerHandler extends SimpleChannelInboundHandler {
+public class RpcServerHandler extends SimpleChannelInboundHandler<RpcMessage> {
 
     private ServiceProvider serviceProvider = SingletonFactory.getSingleton(ZkServiceProviderImpl.class);
 
@@ -30,19 +31,20 @@ public class RpcServerHandler extends SimpleChannelInboundHandler {
 
     @Override
     //继承SimpleChannelInboundHandler重写channelRead0后，会自动释放msg的内存(看一下netty内存池泄露问题)
-    protected void channelRead0(ChannelHandlerContext ctx, Object msg) throws Exception {
-        RpcMessage rpcMessageReq = (RpcMessage) msg;
+    protected void channelRead0(ChannelHandlerContext ctx, RpcMessage msg) throws Exception {
         RpcMessage rpcMessageRes = RpcMessage.builder()
-                .codec(rpcMessageReq.getCodec())
-                .compress(rpcMessageReq.getCompress())
+                .codec(msg.getCodec())
+                .compress(msg.getCompress())
+                .status((byte)0)
+                .attachment(new HashMap<>())
                 .build();
-        byte messageType = rpcMessageReq.getMessageType();
+        byte messageType = msg.getMessageType();
         if (messageType == RpcConstants.HEARTBEAT_REQUEST_TYPE) {
-            log.info("服务端收到心跳检测：{}", rpcMessageReq.getData());
+            log.info("服务端收到心跳检测：{}", msg.getData());
             rpcMessageRes.setMessageType(RpcConstants.HEARTBEAT_RESPONSE_TYPE);
             rpcMessageRes.setData(RpcConstants.PONG);
         } else {
-            RpcRequest request = (RpcRequest) rpcMessageReq.getData();
+            RpcRequest request = (RpcRequest) msg.getData();
             RpcResponse response = invoke(request, ctx);
             rpcMessageRes.setMessageType(RpcConstants.RESPONSE_TYPE);
             if (ctx.channel().isActive() && ctx.channel().isWritable()) {
@@ -74,7 +76,13 @@ public class RpcServerHandler extends SimpleChannelInboundHandler {
     }
 
     @Override
+    public void channelInactive(ChannelHandlerContext ctx) throws Exception {
+        System.out.println("----------------------channelInactive");
+    }
+
+    @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
+        System.out.println("----------------------exceptionCaught");
         cause.printStackTrace();
         ctx.close();
     }

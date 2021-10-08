@@ -2,6 +2,8 @@ package org.zrd.dto;
 
 import lombok.*;
 
+import java.util.Map;
+
 /**
  * @Description TODO
  * @Author ZRD
@@ -20,6 +22,10 @@ public class RpcMessage {
     private byte codec;
 
     private byte compress;
+
+    private byte status;
+
+    private Map<String, Object> attachment;
 
     private Object data;
 }

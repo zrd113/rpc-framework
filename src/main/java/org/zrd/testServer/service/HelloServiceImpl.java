@@ -10,6 +10,11 @@ import org.zrd.annotation.RpcService;
 public class HelloServiceImpl implements HelloService {
     @Override
     public String Hello() {
+//        try {
+//            TimeUnit.SECONDS.sleep(3);
+//        } catch (InterruptedException e) {
+//            e.printStackTrace();
+//        }
         return "HelloServiceImpl";
     }
 }
